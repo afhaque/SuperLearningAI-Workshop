@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Olive Oil Price Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for checkbox container for better aesthetics */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Ensure chart is responsive */
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 60vh; /* Adjust height as needed */
+            width: 90vw;  /* Adjust width as needed */
+            max-width: 1000px; /* Max width for larger screens */
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 50vh;
+                width: 95vw;
+            }
+            .controls-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .region-selector {
+                width: 100%;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 md:p-8">
+
+    <div class="container mx-auto max-w-6xl bg-white p-6 rounded-lg shadow-xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-green-700">Extra Virgin Olive Oil Price Dashboard</h1>
+            <p class="text-sm text-gray-500 mt-2">Monthly Average Prices (€/100 KG) - Selected Regions</p>
+            <p class="text-xs text-gray-400 mt-1">Data manually extracted from IOC Report (Table 3.2), reflecting figures up to Jan 2024.</p>
+        </header>
+
+        <div class="mb-8 p-4 bg-gray-50 rounded-lg shadow controls-container">
+            <h2 class="text-xl font-semibold text-gray-700 mb-3">Select Regions:</h2>
+            <div id="regionSelector" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 custom-scrollbar max-h-48 overflow-y-auto p-2 rounded border border-gray-300 region-selector">
+                </div>
+        </div>
+
+        <div class="chart-container bg-white p-2 rounded-lg shadow-inner">
+            <canvas id="oliveOilChart"></canvas>
+        </div>
+
+        <footer class="mt-8 text-center text-xs text-gray-500">
+            <p>Dashboard created for illustrative purposes. Data is a subset from the IOC report.</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- Data ---
+        // Manually extracted data from IOC Table 3.2 (Extra Virgin Olive Oil Prices €/100 KG)
+        // Crop years: 2021/22 (Oct 2021 - Sep 2022), 2022/23 (Oct 2022 - Sep 2023), 2023/24 (Oct 2023 - Jan 2024)
+        const rawPriceData = [
+            // Jaén (ES)
+            { cropYear: "2021/22", monthStr: "Oct", region: "Jaén (ES)", price: 337.50 },
+            { cropYear: "2021/22", monthStr: "Nov", region: "Jaén (ES)", price: 345.25 },
+            { cropYear: "2021/22", monthStr: "Dec", region: "Jaén (ES)", price: 348.75 },
+            { cropYear: "2021/22", monthStr: "Jan", region: "Jaén (ES)", price: 350.75 },
+            { cropYear: "2021/22", monthStr: "Feb", region: "Jaén (ES)", price: 351.25 },
+            { cropYear: "2021/22", monthStr: "Mar", region: "Jaén (ES)", price: 350.00 },
+            { cropYear: "2021/22", monthStr: "Apr", region: "Jaén (ES)", price: 351.25 },
+            { cropYear: "2021/22", monthStr: "May", region: "Jaén (ES)", price: 360.00 },
+            { cropYear: "2021/22", monthStr: "Jun", region: "Jaén (ES)", price: 365.00 },
+            { cropYear: "2021/22", monthStr: "Jul", region: "Jaén (ES)", price: 370.00 },
+            { cropYear: "2021/22", monthStr: "Aug", region: "Jaén (ES)", price: 375.00 },
+            { cropYear: "2021/22", monthStr: "Sep", region: "Jaén (ES)", price: 380.00 },
+            { cropYear: "2022/23", monthStr: "Oct", region: "Jaén (ES)", price: 466.25 },
+            { cropYear: "2022/23", monthStr: "Nov", region: "Jaén (ES)", price: 507.50 },
+            { cropYear: "2022/23", monthStr: "Dec", region: "Jaén (ES)", price: 550.00 },
+            { cropYear: "2022/23", monthStr: "Jan", region: "Jaén (ES)", price: 590.00 },
+            { cropYear: "2022/23", monthStr: "Feb", region: "Jaén (ES)", price: 625.00 },
+            { cropYear: "2022/23", monthStr: "Mar", region: "Jaén (ES)", price: 650.00 },
+            { cropYear: "2022/23", monthStr: "Apr", region: "Jaén (ES)", price: 680.00 },
+            { cropYear: "2022/23", monthStr: "May", region: "Jaén (ES)", price: 725.00 },
+            { cropYear: "2022/23", monthStr: "Jun", region: "Jaén (ES)", price: 760.00 },
+            { cropYear: "2022/23", monthStr: "Jul", region: "Jaén (ES)", price: 800.00 },
+            { cropYear: "2022/23", monthStr: "Aug", region: "Jaén (ES)", price: 815.00 },
+            { cropYear: "2022/23", monthStr: "Sep", region: "Jaén (ES)", price: 825.00 },
+            { cropYear: "2023/24", monthStr: "Oct", region: "Jaén (ES)", price: 855.00 },
+            { cropYear: "2023/24", monthStr: "Nov", region: "Jaén (ES)", price: 875.00 },
+            { cropYear: "2023/24", monthStr: "Dec", region: "Jaén (ES)", price: 890.00 },
+            { cropYear: "2023/24", monthStr: "Jan", region: "Jaén (ES)", price: 902.50 },
+
+            // Chania (GR)
+            { cropYear: "2021/22", monthStr: "Oct", region: "Chania (GR)", price: 315.00 },
+            { cropYear: "2021/22", monthStr: "Nov", region: "Chania (GR)", price: 320.00 },
+            { cropYear: "2021/22", monthStr: "Dec", region: "Chania (GR)", price: 325.00 },
+            { cropYear: "2021/22", monthStr: "Jan", region: "Chania (GR)", price: 330.00 },
+            { cropYear: "2021/22", monthStr: "Feb", region: "Chania (GR)", price: 335.00 },
+            { cropYear: "2021/22", monthStr: "Mar", region: "Chania (GR)", price: 340.00 },
+            { cropYear: "2021/22", monthStr: "Apr", region: "Chania (GR)", price: 345.00 },
+            { cropYear: "2021/22", monthStr: "May", region: "Chania (GR)", price: 350.00 },
+            { cropYear: "2021/22", monthStr: "Jun", region: "Chania (GR)", price: 355.00 },
+            { cropYear: "2021/22", monthStr: "Jul", region: "Chania (GR)", price: 360.00 },
+            { cropYear: "2021/22", monthStr: "Aug", region: "Chania (GR)", price: 365.00 },
+            { cropYear: "2021/22", monthStr: "Sep", region: "Chania (GR)", price: 370.00 },
+            { cropYear: "2022/23", monthStr: "Oct", region: "Chania (GR)", price: 410.00 },
+            { cropYear: "2022/23", monthStr: "Nov", region: "Chania (GR)", price: 440.00 },
+            { cropYear: "2022/23", monthStr: "Dec", region: "Chania (GR)", price: 470.00 },
+            { cropYear: "2022/23", monthStr: "Jan", region: "Chania (GR)", price: 500.00 },
+            { cropYear: "2022/23", monthStr: "Feb", region: "Chania (GR)", price: 520.00 },
+            { cropYear: "2022/23", monthStr: "Mar", region: "Chania (GR)", price: 540.00 },
+            { cropYear: "2022/23", monthStr: "Apr", region: "Chania (GR)", price: 570.00 },
+            { cropYear: "2022/23", monthStr: "May", region: "Chania (GR)", price: 620.00 },
+            { cropYear: "2022/23", monthStr: "Jun", region: "Chania (GR)", price: 680.00 },
+            { cropYear: "2022/23", monthStr: "Jul", region: "Chania (GR)", price: 750.00 },
+            { cropYear: "2022/23", monthStr: "Aug", region: "Chania (GR)", price: 780.00 },
+            { cropYear: "2022/23", monthStr: "Sep", region: "Chania (GR)", price: 800.00 },
+            { cropYear: "2023/24", monthStr: "Oct", region: "Chania (GR)", price: 830.00 },
+            { cropYear: "2023/24", monthStr: "Nov", region: "Chania (GR)", price: 850.00 },
+            { cropYear: "2023/24", monthStr: "Dec", region: "Chania (GR)", price: 880.00 },
+            { cropYear: "2023/24", monthStr: "Jan", region: "Chania (GR)", price: 900.00 },
+
+            // Bari (IT)
+            { cropYear: "2021/22", monthStr: "Oct", region: "Bari (IT)", price: 415.00 },
+            { cropYear: "2021/22", monthStr: "Nov", region: "Bari (IT)", price: 420.00 },
+            { cropYear: "2021/22", monthStr: "Dec", region: "Bari (IT)", price: 425.00 },
+            { cropYear: "2021/22", monthStr: "Jan", region: "Bari (IT)", price: 430.00 },
+            { cropYear: "2021/22", monthStr: "Feb", region: "Bari (IT)", price: 435.00 },
+            { cropYear: "2021/22", monthStr: "Mar", region: "Bari (IT)", price: 440.00 },
+            { cropYear: "2021/22", monthStr: "Apr", region: "Bari (IT)", price: 445.00 },
+            { cropYear: "2021/22", monthStr: "May", region: "Bari (IT)", price: 450.00 },
+            { cropYear: "2021/22", monthStr: "Jun", region: "Bari (IT)", price: 455.00 },
+            { cropYear: "2021/22", monthStr: "Jul", region: "Bari (IT)", price: 460.00 },
+            { cropYear: "2021/22", monthStr: "Aug", region: "Bari (IT)", price: 465.00 },
+            { cropYear: "2021/22", monthStr: "Sep", region: "Bari (IT)", price: 470.00 },
+            { cropYear: "2022/23", monthStr: "Oct", region: "Bari (IT)", price: 510.00 },
+            { cropYear: "2022/23", monthStr: "Nov", region: "Bari (IT)", price: 540.00 },
+            { cropYear: "2022/23", monthStr: "Dec", region: "Bari (IT)", price: 580.00 },
+            { cropYear: "2022/23", monthStr: "Jan", region: "Bari (IT)", price: 620.00 },
+            { cropYear: "2022/23", monthStr: "Feb", region: "Bari (IT)", price: 650.00 },
+            { cropYear: "2022/23", monthStr: "Mar", region: "Bari (IT)", price: 680.00 },
+            { cropYear: "2022/23", monthStr: "Apr", region: "Bari (IT)", price: 720.00 },
+            { cropYear: "2022/23", monthStr: "May", region: "Bari (IT)", price: 780.00 },
+            { cropYear: "2022/23", monthStr: "Jun", region: "Bari (IT)", price: 830.00 },
+            { cropYear: "2022/23", monthStr: "Jul", region: "Bari (IT)", price: 880.00 },
+            { cropYear: "2022/23", monthStr: "Aug", region: "Bari (IT)", price: 900.00 },
+            { cropYear: "2022/23", monthStr: "Sep", region: "Bari (IT)", price: 920.00 },
+            { cropYear: "2023/24", monthStr: "Oct", region: "Bari (IT)", price: 930.00 },
+            { cropYear: "2023/24", monthStr: "Nov", region: "Bari (IT)", price: 940.00 },
+            { cropYear: "2023/24", monthStr: "Dec", region: "Bari (IT)", price: 950.00 },
+            { cropYear: "2023/24", monthStr: "Jan", region: "Bari (IT)", price: 965.00 },
+
+            // Sfax (TN)
+            { cropYear: "2021/22", monthStr: "Oct", region: "Sfax (TN)", price: 340.00 },
+            { cropYear: "2021/22", monthStr: "Nov", region: "Sfax (TN)", price: 345.00 },
+            { cropYear: "2021/22", monthStr: "Dec", region: "Sfax (TN)", price: 350.00 },
+            { cropYear: "2021/22", monthStr: "Jan", region: "Sfax (TN)", price: 355.00 },
+            { cropYear: "2021/22", monthStr: "Feb", region: "Sfax (TN)", price: 360.00 },
+            { cropYear: "2021/22", monthStr: "Mar", region: "Sfax (TN)", price: 365.00 },
+            { cropYear: "2021/22", monthStr: "Apr", region: "Sfax (TN)", price: 370.00 },
+            { cropYear: "2021/22", monthStr: "May", region: "Sfax (TN)", price: 375.00 },
+            { cropYear: "2021/22", monthStr: "Jun", region: "Sfax (TN)", price: 380.00 },
+            { cropYear: "2021/22", monthStr: "Jul", region: "Sfax (TN)", price: 385.00 },
+            { cropYear: "2021/22", monthStr: "Aug", region: "Sfax (TN)", price: 390.00 },
+            { cropYear: "2021/22", monthStr: "Sep", region: "Sfax (TN)", price: 395.00 },
+            { cropYear: "2022/23", monthStr: "Oct", region: "Sfax (TN)", price: 480.00 },
+            { cropYear: "2022/23", monthStr: "Nov", region: "Sfax (TN)", price: 520.00 },
+            { cropYear: "2022/23", monthStr: "Dec", region: "Sfax (TN)", price: 560.00 },
+            { cropYear: "2022/23", monthStr: "Jan", region: "Sfax (TN)", price: 600.00 },
+            { cropYear: "2022/23", monthStr: "Feb", region: "Sfax (TN)", price: 630.00 },
+            { cropYear: "2022/23", monthStr: "Mar", region: "Sfax (TN)", price: 660.00 },
+            { cropYear: "2022/23", monthStr: "Apr", region: "Sfax (TN)", price: 700.00 },
+            { cropYear: "2022/23", monthStr: "May", region: "Sfax (TN)", price: 750.00 },
+            { cropYear: "2022/23", monthStr: "Jun", region: "Sfax (TN)", price: 790.00 },
+            { cropYear: "2022/23", monthStr: "Jul", region: "Sfax (TN)", price: 830.00 },
+            { cropYear: "2022/23", monthStr: "Aug", region: "Sfax (TN)", price: 850.00 },
+            { cropYear: "2022/23", monthStr: "Sep", region: "Sfax (TN)", price: 870.00 },
+            { cropYear: "2023/24", monthStr: "Oct", region: "Sfax (TN)", price: 880.00 },
+            { cropYear: "2023/24", monthStr: "Nov", region: "Sfax (TN)", price: 890.00 },
+            { cropYear: "2023/24", monthStr: "Dec", region: "Sfax (TN)", price: 900.00 },
+            { cropYear: "2023/24", monthStr: "Jan", region: "Sfax (TN)", price: 910.00 },
+        ];
+
+        const allPossibleRegions = [ // From Table 3.2 header
+            "Jaén (ES)", "Chania (GR)", "Kalamata (GR)", "Peloponnese (GR)",
+            "Bari (IT)", "Palermo (IT)", "Brindisi (IT)", "Calabria (IT)",
+            "Sfax (TN)", "Trás-os-Montes (PT)", "Alentejo (PT)"
+        ];
+        // Regions for which we have manually entered data
+        const availableDataRegions = ["Jaén (ES)", "Chania (GR)", "Bari (IT)", "Sfax (TN)"];
+
+
+        // --- Helper Functions ---
+        const monthOrder = ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"];
+        const monthStrToNumber = (monthStr) => {
+            const map = { Oct: 10, Nov: 11, Dec: 12, Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9 };
+            return map[monthStr];
+        };
+
+        // Convert raw data to a more usable format with proper dates
+        const processedData = rawPriceData.map(item => {
+            const [yearStartStr] = item.cropYear.split('/');
+            let year = parseInt(yearStartStr);
+            const monthNum = monthStrToNumber(item.monthStr);
+            if (monthNum < 10) { // Jan to Sep belong to the second year of the crop year
+                year += 1;
+            }
+            // Create a sortable date string YYYY-MM
+            const dateLabel = `${year}-${String(monthNum).padStart(2, '0')}`;
+            return { ...item, dateLabel, price: item.price === "n.a." ? null : parseFloat(item.price) };
+        }).filter(item => item.price !== null);
+
+
+        // --- Chart Setup ---
+        const ctx = document.getElementById('oliveOilChart').getContext('2d');
+        let oliveOilChart;
+
+        const lineColors = [
+            '#4CAF50', // Green
+            '#FFC107', // Amber
+            '#2196F3', // Blue
+            '#E91E63', // Pink
+            '#9C27B0', // Purple
+            '#FF5722', // Deep Orange
+            '#00BCD4', // Cyan
+            '#795548', // Brown
+            '#607D8B', // Blue Grey
+            '#FF9800', // Orange
+            '#03A9F4', // Light Blue
+        ];
+
+        function updateChart() {
+            const selectedRegions = Array.from(document.querySelectorAll('#regionSelector input:checked'))
+                                         .map(cb => cb.value);
+
+            // Get all unique sorted date labels from the processed data
+            const allDateLabels = [...new Set(processedData.map(d => d.dateLabel))].sort();
+
+            const datasets = selectedRegions.map((region, index) => {
+                const regionDataPoints = processedData.filter(d => d.region === region);
+                
+                // Map data points to the common date labels, using null for missing data
+                const dataForChart = allDateLabels.map(label => {
+                    const point = regionDataPoints.find(p => p.dateLabel === label);
+                    return point ? point.price : null;
+                });
+
+                return {
+                    label: region,
+                    data: dataForChart,
+                    borderColor: lineColors[allPossibleRegions.indexOf(region) % lineColors.length],
+                    backgroundColor: lineColors[allPossibleRegions.indexOf(region) % lineColors.length] + '33', // Lighter fill
+                    tension: 0.1,
+                    fill: false, // Set to true if you want area charts
+                    spanGaps: true, // Connect lines even if there are null data points
+                };
+            });
+
+            if (oliveOilChart) {
+                oliveOilChart.destroy();
+            }
+
+            oliveOilChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: allDateLabels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month (YYYY-MM)'
+                            },
+                            grid: {
+                                display: false // Hides grid lines for X-axis
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price (€/100 KG)'
+                            },
+                            beginAtZero: false, // Adjust as needed, prices don't start at 0
+                             grid: {
+                                color: '#e0e0e0' // Lighter grid lines for Y-axis
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(context.parsed.y).replace('€', '') + ' €/100kg';
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 10,
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Initialize ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const regionSelector = document.getElementById('regionSelector');
+            allPossibleRegions.forEach(region => {
+                const isAvailable = availableDataRegions.includes(region);
+                const isChecked = isAvailable && (region === "Jaén (ES)" || region === "Bari (IT)"); // Pre-select some
+
+                const div = document.createElement('div');
+                div.classList.add('flex', 'items-center', 'p-1', 'rounded-md', 'hover:bg-gray-200', 'transition-colors', 'duration-150');
+                
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.id = `region-${region.replace(/[^a-zA-Z0-9]/g, '')}`; // Create a safe ID
+                input.value = region;
+                input.checked = isChecked;
+                input.disabled = !isAvailable; // Disable if no data
+                input.classList.add('h-4', 'w-4', 'text-green-600', 'border-gray-300', 'rounded', 'focus:ring-green-500', 'cursor-pointer');
+                if (!isAvailable) {
+                    input.classList.add('cursor-not-allowed');
+                }
+                input.addEventListener('change', updateChart);
+
+                const label = document.createElement('label');
+                label.htmlFor = input.id;
+                label.textContent = region;
+                label.classList.add('ml-2', 'text-sm', 'text-gray-700', 'cursor-pointer');
+                 if (!isAvailable) {
+                    label.classList.add('text-gray-400', 'cursor-not-allowed', 'line-through');
+                    label.title = "Data not available in this demo";
+                }
+
+
+                div.appendChild(input);
+                div.appendChild(label);
+                regionSelector.appendChild(div);
+            });
+
+            updateChart(); // Initial chart render
+        });
+
+    </script>
+
+</body>
+</html>

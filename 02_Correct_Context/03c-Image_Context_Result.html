@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery Layout</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .gallery-container {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .nav a, .header .cta-button {
+            text-decoration: none;
+            color: #333;
+            margin-left: 15px;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .header .cta-button {
+            background-color: #555;
+            color: #fff;
+            border: none;
+        }
+         .nav a:hover {
+            background-color: #eee;
+         }
+        .header .cta-button:hover {
+            background-color: #333;
+        }
+
+
+        /* Gallery Core */
+        .gallery-core {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden; /* Helps contain the carousel */
+            padding: 0 40px; /* Space for nav buttons */
+        }
+
+        .nav-button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 24px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            line-height: 20px; /* Adjust for better vertical alignment */
+        }
+
+        #prevBtn {
+            left: 5px;
+        }
+
+        #nextBtn {
+            right: 5px;
+        }
+       .nav-button:hover {
+            background-color: #555;
+       }
+
+        .carousel {
+            display: flex;
+            align-items: center; /* Vertically align items */
+            justify-content: center;
+            transition: transform 0.5s ease-in-out;
+            gap: 15px; /* Space between images */
+        }
+
+        .carousel img {
+            width: 100px; /* Default size for side images */
+            height: 150px;
+            object-fit: cover;
+            border: 3px solid transparent;
+            border-radius: 10px;
+            transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+            opacity: 0.6;
+            cursor: pointer;
+        }
+
+        .carousel img.active {
+            width: 150px; /* Larger size for active image */
+            height: 225px;
+            border-color: #007bff;
+            transform: scale(1.1);
+            opacity: 1;
+            z-index: 5; /* Bring active image to front */
+        }
+
+        /* Captions & CTAs */
+        .caption {
+            margin-bottom: 20px;
+        }
+
+        .caption h2 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .caption p {
+            font-size: 0.9em;
+            color: #666;
+            min-height: 40px; /* Prevent layout shifts */
+        }
+
+        .cta-buttons a {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0 5px;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-buttons a:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="gallery-container">
+        <header class="header">
+            <div class="logo">LOGO</div>
+            <nav class="nav">
+                <a href="#">Option 1</a>
+                <a href="#">Option 2</a>
+                <a href="#">Option 3</a>
+                <a href="#" class="cta-button">CTA</a>
+            </nav>
+        </header>
+
+        <main>
+            <div class="gallery-core">
+                <button id="prevBtn" class="nav-button">&lt;</button>
+                <div class="carousel" id="carousel">
+                    </div>
+                <button id="nextBtn" class="nav-button">&gt;</button>
+            </div>
+
+            <div class="caption" id="caption">
+                <h2 id="caption-title">Image Title</h2>
+                <p id="caption-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="#">CTA 1</a>
+                <a href="#">CTA 2</a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const images = [
+            { id: 10, title: "Misty Mountains", text: "A serene view of mountains covered in mist." },
+            { id: 20, title: "City Lights", text: "The bustling city skyline illuminated at night." },
+            { id: 35, title: "Forest Path", text: "A quiet path winding through a dense forest." },
+            { id: 42, title: "Ocean Sunset", text: "Golden sunset over a calm ocean horizon." },
+            { id: 58, title: "Architectural Wonder", text: "An impressive piece of modern architecture." },
+            { id: 63, title: "Wildlife Closeup", text: "A detailed shot of an animal in its natural habitat." },
+            { id: 75, title: "Desert Sands", text: "Endless dunes under a clear blue sky." }
+        ];
+
+        let currentIndex = Math.floor(images.length / 2); // Start in the middle
+        const carousel = document.getElementById('carousel');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const captionTitle = document.getElementById('caption-title');
+        const captionText = document.getElementById('caption-text');
+        const visibleImages = 5; // Number of images to show at once
+
+        function getImageUrl(id, width, height) {
+            return `https://picsum.photos/id/${id}/${width}/${height}`;
+        }
+
+        function updateGallery() {
+            carousel.innerHTML = ''; // Clear existing images
+            const start = (currentIndex - Math.floor(visibleImages / 2) + images.length) % images.length;
+
+            for (let i = 0; i < visibleImages; i++) {
+                const imgIndex = (start + i) % images.length;
+                const imgData = images[imgIndex];
+                const imgElement = document.createElement('img');
+                
+                imgElement.src = getImageUrl(imgData.id, 300, 400); // Use a consistent size for fetching
+                imgElement.alt = imgData.title;
+                imgElement.dataset.index = imgIndex; // Store index
+
+                if (imgIndex === currentIndex) {
+                    imgElement.classList.add('active');
+                    captionTitle.textContent = imgData.title;
+                    captionText.textContent = imgData.text;
+                }
+                
+                // Add click listener to set image as active
+                imgElement.addEventListener('click', () => {
+                   currentIndex = parseInt(imgElement.dataset.index);
+                   updateGallery();
+                });
+
+                carousel.appendChild(imgElement);
+            }
+        }
+
+        prevBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateGallery();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateGallery();
+        });
+
+        // Initial load
+        updateGallery();
+
+    </script>
+
+</body>
+</html>

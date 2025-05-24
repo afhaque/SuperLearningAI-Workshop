@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Health Entry</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+        }
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        small {
+            font-size: 0.8em;
+            color: #777;
+        }
+        button {
+            grid-column: 1 / -1;
+            padding: 15px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        #jsonOutput {
+            margin-top: 30px;
+            background-color: #eef;
+            padding: 20px;
+            border: 1px solid #ccd;
+            border-radius: 4px;
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-wrap: break-word; /* Breaks long words */
+            font-family: monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        fieldset {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            grid-column: 1 / -1;
+        }
+        legend {
+            font-weight: bold;
+            color: #333;
+        }
+        .fieldset-grid {
+             display: grid;
+             grid-template-columns: 1fr 1fr;
+             gap: 20px;
+        }
+
+        /* Responsive adjustments */
+         @media (max-width: 600px) {
+            form, .fieldset-grid {
+                grid-template-columns: 1fr;
+            }
+             .form-group.full-width {
+                grid-column: 1; /* Reset to single column */
+            }
+             button {
+                grid-column: 1; /* Reset to single column */
+             }
+             fieldset {
+                 grid-column: 1; /* Reset to single column */
+             }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Health Entry Dashboard 🩺</h1>
+        <form id="healthForm">
+            <div class="form-group">
+                <label for="patientName">Patient Name:</label>
+                <input type="text" id="patientName" name="patientName" required value="Fatima Al-Fihri">
+            </div>
+
+            <div class="form-group">
+                <label for="dateOfBirth">Date of Birth:</label>
+                <input type="date" id="dateOfBirth" name="dateOfBirth" required value="1990-03-15">
+            </div>
+
+            <div class="form-group">
+                <label for="bloodType">Blood Type:</label>
+                <select id="bloodType" name="bloodType" required>
+                    <option value="A+" selected>A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="allergies">Allergies:</label>
+                <textarea id="allergies" name="allergies">Pollen, Dust Mites</textarea>
+                <small>Enter multiple allergies separated by commas (,)</small>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="conditions">Conditions:</label>
+                <textarea id="conditions" name="conditions">Migraine</textarea>
+                 <small>Enter multiple conditions separated by commas (,)</small>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="medications">Medications:</label>
+                <textarea id="medications" name="medications">Sumatriptan</textarea>
+                <small>Enter multiple medications separated by commas (,)</small>
+            </div>
+
+            <fieldset>
+                <legend>Emergency Contact</legend>
+                <div class="fieldset-grid">
+                    <div class="form-group">
+                        <label for="ecName">Name:</label>
+                        <input type="text" id="ecName" name="ecName" required value="Ahmed Al-Fihri">
+                    </div>
+                    <div class="form-group">
+                        <label for="ecRelationship">Relationship:</label>
+                        <input type="text" id="ecRelationship" name="ecRelationship" required value="Brother">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="ecPhone">Phone:</label>
+                        <input type="text" id="ecPhone" name="ecPhone" required value="987-654-3210">
+                    </div>
+                </div>
+            </fieldset>
+
+            <button type="submit">Generate JSON Record</button>
+        </form>
+
+        <h2>Generated JSON Object:</h2>
+        <pre id="jsonOutput">{}</pre>
+    </div>
+
+    <script>
+        document.getElementById('healthForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Helper function to split comma-separated strings into an array
+            const splitToArray = (str) => {
+                return str ? str.split(',').map(item => item.trim()).filter(item => item !== '') : [];
+            };
+
+            // Get form values
+            const patientName = document.getElementById('patientName').value;
+            const dateOfBirth = document.getElementById('dateOfBirth').value;
+            const bloodType = document.getElementById('bloodType').value;
+            const allergies = splitToArray(document.getElementById('allergies').value);
+            const conditions = splitToArray(document.getElementById('conditions').value);
+            const medications = splitToArray(document.getElementById('medications').value);
+            const ecName = document.getElementById('ecName').value;
+            const ecRelationship = document.getElementById('ecRelationship').value;
+            const ecPhone = document.getElementById('ecPhone').value;
+
+            // Create the health record object
+            const healthRecord = {
+                patientName: patientName,
+                dateOfBirth: dateOfBirth,
+                bloodType: bloodType,
+                allergies: allergies,
+                conditions: conditions,
+                medications: medications,
+                emergencyContact: {
+                    name: ecName,
+                    relationship: ecRelationship,
+                    phone: ecPhone
+                }
+            };
+
+            // Convert the object to a formatted JSON string
+            const jsonString = JSON.stringify(healthRecord, null, 2); // null and 2 for pretty printing
+
+            // Display the JSON string
+            document.getElementById('jsonOutput').textContent = jsonString;
+        });
+
+        // Trigger the form submission on load to display initial JSON
+        document.addEventListener('DOMContentLoaded', function() {
+           document.getElementById('healthForm').dispatchEvent(new Event('submit'));
+        });
+    </script>
+
+</body>
+</html>

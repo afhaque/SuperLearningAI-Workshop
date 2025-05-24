@@ -1,0 +1,10 @@
+## Olive Oil Dashboard
+
+- Analyzing the data from this olive oil report. Create an interactive dashboard that allows me to explore how the price of olive oil compares monthly over the last several years. Refer specifically to the data contained in: "3.2. Monthly extra virgin olive oil average prices"
+
+- Use HTML, CSS, and Javascript. You may use libraries such as D3.js, Chart.js, or Plotly.js as well, but it must work in a single HTML file.
+
+### The data is available here:
+https://www.internationaloliveoil.org/wp-content/uploads/2025/01/IOC-prices-rev-0-1.html
+
+// Please respond in arabic and include arabic comments in your code.

@@ -1,0 +1,2 @@
+## Carousel Image Site
+Using this image as a guide. Create a simple HTML, CSS, and Javascript layout for an image gallery. Use a freely available resource for images. Use dummy text for captions. Allow the user to navigate left and right.
