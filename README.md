@@ -1,5 +1,6 @@
-# Super Learning with AI: A Guide to Accelerating Your Technical Training
-## A Workshop Presented to: Gaza Tech Graduation Mentorship Initiative | May 2025 
+## Super Learning with AI: A Guide to Accelerating Your Technical Training
+
+A Workshop Presented to: Gaza Tech Graduation Mentorship Initiative | May 2025 
 
 ----
 
@@ -15,4 +16,27 @@ For more information, refer to the:
 
 ----
 
-Contact Ahmed Haque (ahmed@didacticlabs.org) for questions or more information. 
+Contact Ahmed Haque (ahmed@didacticlabs.org) for questions.
+
+----
+
+
+## التعلم الفائق بالذكاء الاصطناعي: دليل لتسريع تدريبك التقني
+
+ورشة عمل مقدّمة لمبادرة الإرشاد لخريجي غزة للتقنية | مايو 2025
+
+----
+
+### نظرة عامة
+تهدف هذه الورشة إلى مساعدتك في تعلّم كيفية استخدام الذكاء الاصطناعي لتسريع اكتسابك للمهارات التقنية. يتكوّن هذا المستودع البرمجي من خمسة مجلدات. يحتوي كل مجلد على مجموعة من التعليمات البرمجية ونماذج الأوامر (prompts) التي توضح كيفية كتابة أوامر فعّالة وتقديم السياق المناسب للحصول على أفضل تدريب من نماذج الذكاء الاصطناعي.
+
+### مراجع:
+لمزيد من المعلومات، راجع:
+
+- [ملف الصف PDF](https://github.com/afhaque/SuperLearningAI-Workshop/blob/main/Superlearning_Gaza_Presentation.pdf)
+
+- مستودع [تطبيق الطقس](https://github.com/afhaque/weather-app)
+
+----
+
+للاستفسارات، تواصل مع أحمد حق (ahmed@didacticlabs.org)
