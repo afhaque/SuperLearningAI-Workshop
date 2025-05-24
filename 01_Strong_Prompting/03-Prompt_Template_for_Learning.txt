@@ -1,0 +1,11 @@
+## Prompt Template for Learning
+
+- Explain to me the most critical concepts in React.js 
+
+- Assume I am a <describe yourself> who is a beginner in <describe the topic you are learning>
+
+- I am experienced in <describe a topic you are already experienced in>. Provide me analogies where helpful.
+
+- Explain the topic in a way that is <format of the explanation>.
+
+- Be <brief or detailed> in your explanation.

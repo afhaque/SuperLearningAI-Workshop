@@ -1,0 +1,20 @@
+### Learning Style for React (Table Format)
+Explain to me the most critical concepts in React.js Explain the topics I should learn and in what order. Provide me tips on the best strategy to learn React. Use analogies to simple concepts. 
+
+ //Explain to me the answer in the format of main points with bullets. At most provide me with 10 main points and 5 sub-bullets each. Present the information in a table format.
+
+------------------------------------
+
+### Learning Style for React (Slide Show Format)
+Explain to me the most critical concepts in React.js Explain the topics I should learn and in what order. Provide me tips on the best strategy to learn React. Use analogies to simple concepts. 
+
+// Present the information in a slide show format. Break out the content into 15-20 slides. Use HTML, CSS, and Javascript to create the slides or export as a google slide deck.
+
+------------------------------------
+
+### Learning Style for React (Flash Card Format)
+Explain to me the most critical concepts in React.js Explain the topics I should learn and in what order. Provide me tips on the best strategy to learn React. Use analogies to simple concepts. 
+
+// Explain to me the answer in the format of main points with bullets. At most provide me with 10 main points and 5 sub-bullets each. Present the information in a flash card format. Use HTML, CSS, and Javascript to create the flash cards.
+
+ // Please respond in Arabic

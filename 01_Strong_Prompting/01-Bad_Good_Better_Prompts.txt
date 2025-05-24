@@ -1,0 +1,14 @@
+## Bad Prompt
+Explain to me how React works.
+
+------------------------------------
+
+## Good Prompt
+Explain to me the most critical concepts in React.js Explain the topics I should learn and in what order. Provide me tips on the best strategy to learn React. Assume I am a computer science student who is a beginner in React and Javascript. 
+
+------------------------------------
+
+## Better Prompt 
+Explain to me the most critical concepts in React.js Explain the topics I should learn and in what order. Provide me tips on the best strategy to learn React. Assume I am a computer science student who is a beginner in React and Javascript. Use analogies to simple concepts.
+
+// Please respond in Arabic and explain to me the answer in the format of main points with bullets. At most provide me with 10 main points and 5 sub-bullets each. Try to be brief. 
