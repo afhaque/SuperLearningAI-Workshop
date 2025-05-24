@@ -5,4 +5,5 @@ This is the codebase for a weather application. Explore it such that I can ask y
 1. Explain to me the basic file structure.
 2. How do I get it to run locally?
 3. Which file controls the layout?
-4. I do not see much of the layout in this file. 
+4. I do not see much of the layout in this file. Where exactly is the html and css?
+5. ???

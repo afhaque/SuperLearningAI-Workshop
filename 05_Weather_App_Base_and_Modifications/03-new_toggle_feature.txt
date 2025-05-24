@@ -1,7 +1,13 @@
-## New Feature Plan 
+## New Feature Plan (Celsius / Fahrenheit Toggle)
 
 I would like to add a small toggle feature on the bottom right of the page that allows the user to toggle between Celsius and Fahrenheit. This should be a floating button that remains in the bottom right. 
 
 Explain to me the general approach we should take in implementing the feature. 
 
 Call out the specific files that will need to be changed.
+
+## New Feature Plan (Celsius / Fahrenheit Toggle)
+
+I would like to create a way for the user to scroll through a list of cities. Each time they search for a city it should be added to a list of cities. They should then be able to use arrows on the sides of the screen to scroll between cities on that list.
+
+Explain to me the general approach we should take in implementing the feature.
