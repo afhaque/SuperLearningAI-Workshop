@@ -1,0 +1,10 @@
+## Understanding the API Documentation
+
+Analyze this API documentation 
+https://aviationstack.com/documentation
+
+Then  the highlight key points associated with working with it. 
+
+Explain its key capabilities, typical usage patterns, and sample applications.
+
+// Please respond in arabic and include arabic comments in your code.

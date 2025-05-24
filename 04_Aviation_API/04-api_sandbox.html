@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviationstack API Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .form-select, .form-input, .form-datepicker {
+            border-radius: 0.375rem; /* rounded-md */
+            border-width: 1px;
+            border-color: #D1D5DB; /* gray-300 */
+            padding: 0.5rem 0.75rem; /* py-2 px-3 */
+            line-height: 1.5;
+            width: 100%;
+        }
+        .form-select:focus, .form-input:focus, .form-datepicker:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: #60A5FA; /* blue-400 */
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5);
+        }
+        .filter-group {
+            border: 1px solid #E5E7EB; /* gray-200 */
+            padding: 1rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            margin-top: 1rem;
+        }
+        .url-display {
+            background-color: #F3F4F6; /* gray-100 */
+            padding: 0.75rem;
+            border-radius: 0.375rem; /* rounded-md */
+            font-family: monospace;
+            word-break: break-all;
+            border: 1px solid #E5E7EB; /* gray-200 */
+        }
+        .tab-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem 0.375rem 0 0;
+            cursor: pointer;
+            background-color: #E5E7EB; /* gray-200 */
+            border: 1px solid #D1D5DB; /* gray-300 */
+            border-bottom: none;
+            margin-right: 0.25rem;
+        }
+        .tab-button.active {
+            background-color: #fff;
+            border-bottom: 1px solid #fff;
+            position: relative;
+            top: 1px;
+            font-weight: 600;
+        }
+        .tab-content {
+            border: 1px solid #D1D5DB; /* gray-300 */
+            padding: 1rem;
+            border-radius: 0 0.375rem 0.375rem 0.375rem; /* rounded-b-md */
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4 sm:p-8">
+
+    <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-sky-600">Aviationstack API Route Tester</h1>
+            <p class="text-gray-600 mt-2">Select an endpoint, enter parameters, and see the generated API URL.</p>
+        </header>
+
+        <div class="mb-6">
+            <label for="accessKey" class="block text-sm font-medium text-gray-700 mb-1">API Access Key <span class="text-red-500">*</span></label>
+            <input type="text" id="accessKey" name="accessKey" class="form-input" placeholder="Enter your API access_key">
+            <p class="text-xs text-gray-500 mt-1">Your aviationstack API key is required to build the URLs.</p>
+        </div>
+
+        <div id="tabsContainer" class="mb-6">
+            </div>
+
+        <div id="formContainer">
+            </div>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">Generated API URL:</h2>
+            <div id="generatedUrl" class="url-display text-sm">
+                Select an endpoint and enter parameters to see the URL.
+            </div>
+        </div>
+         <footer class="mt-8 text-center text-sm text-gray-500">
+            <p>This tool helps you construct API URLs for testing. It does not make actual API calls.</p>
+        </footer>
+    </div>
+
+    <script>
+        const baseApiUrl = 'https://api.aviationstack.com/v1/';
+        const accessKeyInput = document.getElementById('accessKey');
+        const tabsContainer = document.getElementById('tabsContainer');
+        const formContainer = document.getElementById('formContainer');
+        const generatedUrlDiv = document.getElementById('generatedUrl');
+
+        let currentEndpoint = '';
+        let currentParams = {};
+
+        const endpointsConfig = {
+            flights: {
+                label: 'Flights',
+                path: 'flights',
+                primaryParams: [
+                    { id: 'flight_iata', label: 'Flight IATA', placeholder: 'e.g., AA123', type: 'text' },
+                    { id: 'dep_iata', label: 'Departure IATA', placeholder: 'e.g., JFK', type: 'text' },
+                    { id: 'arr_iata', label: 'Arrival IATA', placeholder: 'e.g., LAX', type: 'text' },
+                ],
+                filters: [
+                    { id: 'flight_status', label: 'Flight Status', type: 'select', options: ['', 'scheduled', 'active', 'landed', 'cancelled', 'incident', 'diverted'] },
+                    { id: 'flight_date', label: 'Flight Date', type: 'date' },
+                    { id: 'limit', label: 'Limit Results', type: 'number', placeholder: 'e.g., 100' }
+                ]
+            },
+            routes: {
+                label: 'Routes',
+                path: 'routes',
+                primaryParams: [],
+                filters: [
+                    { id: 'dep_iata', label: 'Departure IATA', placeholder: 'e.g., LHR', type: 'text' },
+                    { id: 'arr_iata', label: 'Arrival IATA', placeholder: 'e.g., CDG', type: 'text' },
+                    { id: 'airline_name', label: 'Airline Name', placeholder: 'e.g., British Airways', type: 'text' },
+                    { id: 'flight_number', label: 'Flight Number', placeholder: 'e.g., BA245', type: 'text' }
+                ]
+            },
+            airports: {
+                label: 'Airports',
+                path: 'airports',
+                primaryParams: [
+                     { id: 'iata_code', label: 'Airport IATA Code', placeholder: 'e.g., JFK', type: 'text' }
+                ],
+                filters: [
+                    { id: 'airport_name', label: 'Airport Name', placeholder: 'e.g., John F Kennedy', type: 'text' },
+                    { id: 'icao_code', label: 'ICAO Code', placeholder: 'e.g., KJFK', type: 'text' },
+                    { id: 'country_iso2', label: 'Country ISO2', placeholder: 'e.g., US', type: 'text' }
+                ]
+            },
+            airlines: {
+                label: 'Airlines',
+                path: 'airlines',
+                primaryParams: [
+                     { id: 'iata_code', label: 'Airline IATA Code', placeholder: 'e.g., AA', type: 'text' }
+                ],
+                filters: [
+                    { id: 'airline_name', label: 'Airline Name', placeholder: 'e.g., American Airlines', type: 'text' },
+                    { id: 'icao_code', label: 'ICAO Code', placeholder: 'e.g., AAL', type: 'text' }
+                ]
+            },
+            aircraft_types: {
+                label: 'Aircraft Types',
+                path: 'aircraft_types',
+                primaryParams: [
+                    { id: 'iata_code', label: 'Aircraft IATA Code', placeholder: 'e.g., B738', type: 'text' }
+                ],
+                filters: [
+                    { id: 'aircraft_name', label: 'Aircraft Name', placeholder: 'e.g., Boeing 737-800', type: 'text' }
+                ]
+            }
+        };
+
+        function generateForm(endpointKey) {
+            currentEndpoint = endpointKey;
+            currentParams = {}; // Reset params
+            const config = endpointsConfig[endpointKey];
+            let formHtml = `<div id="${endpointKey}-form" class="tab-content">`;
+
+            if (config.primaryParams.length > 0) {
+                formHtml += `<h3 class="text-md font-semibold text-gray-700 mb-3">Primary Parameters:</h3>`;
+                config.primaryParams.forEach(param => {
+                    formHtml += `
+                        <div class="mb-4">
+                            <label for="${endpointKey}_${param.id}" class="block text-sm font-medium text-gray-700 mb-1">${param.label}</label>
+                            <input type="${param.type || 'text'}" id="${endpointKey}_${param.id}" name="${param.id}" class="form-input" placeholder="${param.placeholder || ''}">
+                        </div>
+                    `;
+                });
+            }
+
+            if (config.filters.length > 0) {
+                formHtml += `<div class="filter-group">
+                                <h3 class="text-md font-semibold text-gray-700 mb-3">Optional Filters:</h3>`;
+                config.filters.forEach(filter => {
+                    formHtml += `<div class="mb-4">
+                                    <label for="${endpointKey}_${filter.id}" class="block text-sm font-medium text-gray-700 mb-1">${filter.label}</label>`;
+                    if (filter.type === 'select') {
+                        formHtml += `<select id="${endpointKey}_${filter.id}" name="${filter.id}" class="form-select">`;
+                        filter.options.forEach(opt => {
+                            formHtml += `<option value="${opt}">${opt || 'Any'}</option>`;
+                        });
+                        formHtml += `</select>`;
+                    } else if (filter.type === 'date') {
+                         formHtml += `<input type="date" id="${endpointKey}_${filter.id}" name="${filter.id}" class="form-datepicker">`;
+                    }
+                    else {
+                        formHtml += `<input type="${filter.type || 'text'}" id="${endpointKey}_${filter.id}" name="${filter.id}" class="form-input" placeholder="${filter.placeholder || ''}">`;
+                    }
+                    formHtml += `</div>`;
+                });
+                formHtml += `</div>`;
+            }
+            formHtml += `</div>`;
+            formContainer.innerHTML = formHtml;
+
+            // Add event listeners to new form inputs
+            document.querySelectorAll(`#${endpointKey}-form input, #${endpointKey}-form select`).forEach(input => {
+                input.addEventListener('input', updateUrl);
+                input.addEventListener('change', updateUrl); // For select and date
+            });
+            updateUrl(); // Initial URL update
+        }
+
+        function updateUrl() {
+            const accessKey = accessKeyInput.value.trim();
+            if (!currentEndpoint || !accessKey) {
+                generatedUrlDiv.textContent = 'Please enter your API Access Key and select an endpoint.';
+                if (!accessKey && currentEndpoint) {
+                     generatedUrlDiv.textContent = 'Please enter your API Access Key.';
+                } else if (accessKey && !currentEndpoint) {
+                     generatedUrlDiv.textContent = 'Please select an endpoint.';
+                }
+                return;
+            }
+
+            const config = endpointsConfig[currentEndpoint];
+            let url = `${baseApiUrl}${config.path}?access_key=${accessKey}`;
+            currentParams = { access_key: accessKey };
+
+
+            // Collect values from primary parameters and filters
+            document.querySelectorAll(`#${currentEndpoint}-form input, #${currentEndpoint}-form select`).forEach(input => {
+                const value = input.value.trim();
+                if (value) {
+                    currentParams[input.name] = value;
+                    url += `&${input.name}=${encodeURIComponent(value)}`;
+                }
+            });
+
+            generatedUrlDiv.textContent = url;
+        }
+
+        function initTabs() {
+            let firstEndpointKey = '';
+            Object.keys(endpointsConfig).forEach((key, index) => {
+                if (index === 0) firstEndpointKey = key;
+                const button = document.createElement('button');
+                button.className = 'tab-button';
+                button.textContent = endpointsConfig[key].label;
+                button.dataset.endpointKey = key;
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    generateForm(key);
+                });
+                tabsContainer.appendChild(button);
+            });
+
+            // Activate the first tab by default
+            if (firstEndpointKey) {
+                tabsContainer.querySelector(`[data-endpoint-key="${firstEndpointKey}"]`).classList.add('active');
+                generateForm(firstEndpointKey);
+            }
+        }
+
+        accessKeyInput.addEventListener('input', updateUrl);
+
+        // Initialize
+        initTabs();
+    </script>
+
+</body>
+</html>

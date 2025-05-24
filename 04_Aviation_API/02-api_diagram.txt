@@ -1,0 +1,3 @@
+## Creating an API Diagram of the Documentation 
+
+Create the script for a Mermaid Diagram of the API Documentation's key endpoints and routes.

@@ -1,0 +1,121 @@
+graph TD
+    A[Aviationstack API] --> B{Flights API};
+    A --> C{Routes API};
+    A --> D{Airports API};
+    A --> E{Airlines API};
+    A --> F{Airplanes API};
+    A --> G{Cities API};
+    A --> H{Countries API};
+    A --> I{Taxes API};
+    A --> J{Aircraft Types API};
+
+    subgraph "Flights Endpoint"
+        direction LR
+        B --> B1[Real-time Flights];
+        B --> B2[Historical Flights];
+        B --> B3[Future Flights Schedules];
+        B1 --> B1a("GET /flights");
+        B2 --> B2a("GET /flights?flight_status=scheduled,active,landed,cancelled,incident,diverted&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD");
+        B3 --> B3a("GET /flights?flight_status=scheduled");
+    end
+
+    subgraph "Routes Endpoint"
+        direction LR
+        C --> C1[Airline Routes];
+        C1 --> C1a("GET /routes");
+        C1 --> C1b("Filter by: departure_iata, arrival_iata, airline_name, flight_number");
+    end
+
+    subgraph "Airports Endpoint"
+        direction LR
+        D --> D1[Airport Information];
+        D1 --> D1a("GET /airports");
+        D1 --> D1b("Filter by: airport_name, iata_code, icao_code, country_iso2");
+    end
+
+    subgraph "Airlines Endpoint"
+        direction LR
+        E --> E1[Airline Information];
+        E1 --> E1a("GET /airlines");
+        E1 --> E1b("Filter by: airline_name, iata_code, icao_code");
+    end
+
+    subgraph "Airplanes Endpoint"
+        direction LR
+        F --> F1[Airplane Information];
+        F1 --> F1a("GET /airplanes");
+        F1 --> F1b("Filter by: registration_number, production_line");
+    end
+
+    subgraph "Cities Endpoint"
+        direction LR
+        G --> G1[City Information];
+        G1 --> G1a("GET /cities");
+        G1 --> G1b("Filter by: city_name, iata_code, country_iso2");
+    end
+
+    subgraph "Countries Endpoint"
+        direction LR
+        H --> H1[Country Information];
+        H1 --> H1a("GET /countries");
+        H1 --> H1b("Filter by: country_name, country_iso2");
+    end
+
+    subgraph "Taxes Endpoint"
+        direction LR
+        I --> I1[Tax Information];
+        I1 --> I1a("GET /taxes");
+        I1 --> I1b("Filter by: tax_name, iata_code");
+    end
+
+    subgraph "Aircraft Types Endpoint"
+        direction LR
+        J --> J1[Aircraft Type Information];
+        J1 --> J1a("GET /aircraft_types");
+        J1 --> J1b("Filter by: aircraft_name, iata_code");
+    end
+
+    %% Interconnections
+    %% Flights use Airport Info (departure/arrival)
+    B1 -- Uses --> D1;
+    B2 -- Uses --> D1;
+    B3 -- Uses --> D1;
+    %% Flights use Airline Info
+    B1 -- Uses --> E1;
+    B2 -- Uses --> E1;
+    B3 -- Uses --> E1;
+    %% Flights involve specific Aircraft Types
+    B1 -- Involves --> J1;
+    B2 -- Involves --> J1;
+    B3 -- Involves --> J1;
+    %% Airplanes are of certain Aircraft Types
+    F1 -- Relates to --> J1;
+
+    %% Routes connect Airports
+    C1 -- Connects --> D1;
+    %% Routes are operated by Airlines
+    C1 -- Operated by --> E1;
+
+    %% Airports are in Cities
+    D1 -- Located in --> G1;
+    %% Cities are in Countries
+    G1 -- Located in --> H1;
+    %% Airlines can be based in Countries (conceptually)
+    E1 -- Based in --> H1;
+
+    %% Flights may have associated Taxes
+    B1 -- May include --> I1;
+    B2 -- May include --> I1;
+    B3 -- May include --> I1;
+
+    style B1 fill:#f9f,stroke:#333,stroke-width:2px
+    style C1 fill:#ccf,stroke:#333,stroke-width:2px
+    style D1 fill:#cfc,stroke:#333,stroke-width:2px
+    style E1 fill:#ffc,stroke:#333,stroke-width:2px
+    style F1 fill:#fcc,stroke:#333,stroke-width:2px
+    style G1 fill:#cff,stroke:#333,stroke-width:2px
+    style H1 fill:#9cf,stroke:#333,stroke-width:2px
+    style I1 fill:#f9c,stroke:#333,stroke-width:2px
+    style J1 fill:#c9f,stroke:#333,stroke-width:2px
+
+    classDef default fill:#fff,stroke:#333,stroke-width:2px;
