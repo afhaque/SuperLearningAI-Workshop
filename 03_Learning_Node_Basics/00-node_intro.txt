@@ -2,3 +2,4 @@
 Create a primer for me on node.js. Explain to me what node is, what it is used for, and what it is not. Include a summarized explanation of its basic syntax and common commands. Use comparisons to Python to help me understand the differences. I am a python developer who has not written javascript code nor am I familiar with node.js.
 
 // Please respond in arabic and include arabic comments in your code.
+

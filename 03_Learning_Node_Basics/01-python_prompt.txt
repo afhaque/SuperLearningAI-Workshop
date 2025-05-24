@@ -2,3 +2,6 @@
 create a command line interface in Python that will take in a set of 6 letters and then respond with all of the possible words that can be created from those 6 letters. The words should be based on a standard english dictionary. The same letter can be used multiple times. Use the words_alpha.txt file supplied in the same directory as the source of the dictionary. Include comments to highlight the most important parts of the code. 
 
 // Please respond in arabic and include arabic comments in your code.
+
+
+

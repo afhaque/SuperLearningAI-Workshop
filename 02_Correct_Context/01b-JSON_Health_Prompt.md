@@ -3,6 +3,7 @@
 Using the JSON Health Sample provided below, create an HTML, CSS, Javascript dashboard that allows me to enter a patient's health information and then have it convert the record into a JSON object.
 
 ### JSON Health Sample{
+```json
   "patientName": "Fatima Al-Fihri",
   "dateOfBirth": "1990-03-15",
   "bloodType": "A+",
@@ -22,3 +23,5 @@ Using the JSON Health Sample provided below, create an HTML, CSS, Javascript das
     "phone": "987-654-3210"
   }
 }
+```
+
