@@ -1,0 +1,7 @@
+## New Feature Plan 
+
+I would like to add a small toggle feature on the bottom right of the page that allows the user to toggle between Celsius and Fahrenheit. This should be a floating button that remains in the bottom right. 
+
+Explain to me the general approach we should take in implementing the feature. 
+
+Call out the specific files that will need to be changed.

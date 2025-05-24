@@ -1,0 +1,4 @@
+## Node.js Word Scrambler
+Using the Python example provided, create a similar command line interface in Node.js. Consider that I am not a JavaScript developer so I am not familiar with the syntax nor how Node.js works. Reference the Python examples as much as possible in the comments to help me understand the new code. Make the focus of your commentary to explain the similarities and differences to the Python code. Be sure to include instructions on how to run the code at the top of the file. 
+
+// Please respond in arabic and include arabic comments in your code.
